@@ -6,7 +6,7 @@ import java.time.Instant;
  * Durable per-task state: the source of truth for idempotency, leases and crash recovery.
  * Production mapping: one DynamoDB item per (jobId, engagementId); every method is a single conditional write
  * (the in-memory implementation uses ConcurrentHashMap.compute for the same atomicity).
- *
+ * <p>
  * "failures" counts real failures only. A throttle response says nothing about the task, so it must not consume
  * the retry budget; an expired lease (worker crashed mid-call) does count, which protects against poison tasks.
  */

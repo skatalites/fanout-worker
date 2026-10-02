@@ -176,10 +176,7 @@ public final class FanOutWorker {
         } catch (TimeoutException e) {
             failOrRetry(t, claim, e, r);
             return true; // the downstream may still be working: keep the permit during the quarantine
-        } catch (TransientException | RuntimeException e) {
-            failOrRetry(t, claim, e, r);
-            return false;
-        } catch (DownstreamException e) {
+        } catch (RuntimeException | DownstreamException e) {
             failOrRetry(t, claim, e, r);
             return false;
         } catch (InterruptedException e) {
@@ -252,7 +249,7 @@ public final class FanOutWorker {
     /** Exponential backoff with "equal jitter": half fixed, half random, so retries do not synchronise. */
     private long backoffMillis(int attempt) {
         long cap = Math.min(cfg.maxBackoff().toMillis(),
-                cfg.baseBackoff().toMillis() << Math.min(Math.max(attempt - 1, 0), 20));
+                cfg.baseBackoff().toMillis() << Math.clamp(attempt - 1, 0, 20));
         if (cap <= 0) return 0;
         return cap / 2 + ThreadLocalRandom.current().nextLong(cap / 2 + 1);
     }

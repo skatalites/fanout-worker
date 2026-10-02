@@ -6,7 +6,7 @@
 
 ## 0. Summary of the design
 
-1. **Pending isn't stored; it's calculated.** We keep two small lists: the latest valid version for each product and market, and the version each engagement is on (and what it declined). Comparing them tells us what's pending, so a publish doesn't touch any engagement.
+1. **Pending isn't stored; it's calculated.** We keep two small lists: the latest valid version for each product and market, and the version each engagement is on (and what it declined). Comparing them tells us what's pending, so a publishing doesn't touch any engagement.
 2. **The *Pending Index* never needs the 1-minute load to answer a user.** It is fed by events from the existing systems, and filled for existing engagements by a background *backfill* at a controlled pace, most active firms first. Engagements not yet known show as **unknown**, never as "up to date".
 3. **One summary per *version pair*, not per engagement.** A version pair is the version an engagement is on and the version it would move to (e.g. `v5-CA → v7-CA`). We write the summary once (per language) and reuse it. An exact list of what changed is the source of truth; the LLM only rewrites it in plain language, and we check the result. Each summary is saved as an immutable record, so it can be defended months later.
 
@@ -22,7 +22,7 @@
 | Query API | New | Regional | What the UI reads: ids and flags |
 | Worker (plus the backfill and the sampling check, which create its jobs) | New | Regional | Controlled calls to the EMS load, under one shared limit. Part 2 builds it |
 
-**Per engagement we store:** its id and firm, template and market, the version it is on, the versions it declined, known or unknown, and a counter to ignore old events.
+**Per engagement, we store:** its id and firm, template and market, the version it is on, the versions it declined, known or unknown, and a counter to ignore old events.
 
 **When is an engagement pending?** When the latest valid version in its market differs from the one it is on, and the user hasn't declined it. Each market has its own line of versions, so a Canadian engagement never gets a US version. Unknown engagements show "verifying".
 
@@ -31,7 +31,7 @@
 - **A version is withdrawn:** the offer goes back to the latest valid one. If the user already declined that one, nothing is pending.
 - **An applied version is withdrawn:** an alert, not an automatic rollback, which could overwrite legitimate edits. People decide.
 
-Because "pending" is a comparison with a very small list, a publish shows up as soon as that list refreshes.
+Because "pending" is a comparison with a very small list, a publishing shows up as soon as that list refreshes.
 
 ## 2. Correctness and production evolution
 
@@ -42,7 +42,7 @@ Because "pending" is a comparison with a very small list, a publish shows up as 
 **Safety nets.**
 - **Opening an engagement:** the system loads it anyway, so we read its real version and fix our entry.
 - **Sampling check:** after each publish, and daily, we load a small sample and compare.
-- **Engagements never checked** are unknown and filled by the backfill. A publish cannot find them: until one is loaded, we don't know its product or market.
+- **Engagements never checked** are unknown and filled by the backfill. A publishing cannot find them: until one is loaded, we don't know its product or market.
 
 **Rollout (nothing is replaced or taken offline).** 1) Add the events, unused. 2) Start reading them. 3) Fill in the rest: on open, and with the backfill, off-peak and able to resume. 4) Run silently: compute answers, hide them, compare with the sampling check. 5) Turn on firm by firm, smallest first; to roll back, switch off and rebuild.
 
@@ -64,7 +64,7 @@ Because "pending" is a comparison with a very small list, a publish shows up as 
 Summaries are the biggest recurring cost. We can't compare with «$X» because it isn't given. Not included: reviewers' time. Assumed: 50 loads at a time, $0.10 per server hour, about 5,000 tokens in and 1,000 out per summary, 5 markets. Prices: AWS and Anthropic list prices, October 2026.
 
 **Targets.**
-- **Indicator:** up to date within 60 seconds of a publish, in 99 of 100 cases (known engagements).
+- **Indicator:** up to date within 60 seconds of a publishing, in 99 of 100 cases (known engagements).
 - **Summary:** ready within 5 minutes for the main version line, in 95 of 100 cases; the exact list of changes shows right away.
 - **Coverage:** after the backfill, at least 99.5% of active engagements are known.
 - **Wrong "up to date":** at most 1 in 1,000. About 3,000 sampled engagements with no mistake let us say, with good confidence, that the rate is below that (about 1 hour of loading with 50 at once). Proving 1 in 10,000 would need 10 times more, which is not practical.

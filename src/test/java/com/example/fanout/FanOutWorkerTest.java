@@ -173,7 +173,7 @@ class FanOutWorkerTest {
 
     @Test
     void aTimedOutCallKeepsHoldingCapacityUntilTheQuarantineEnds() throws Exception {
-        // every call takes 100 ms of "real" work but we only wait 30 ms; the remote keeps working after we give up
+        // every call takes 100 ms of "real" work, but we only wait 30 ms; the remote keeps working after we give up
         StubbornClient client = new StubbornClient(100);
         FanOutConfig c = new FanOutConfig(2, 50, Duration.ofMillis(30),
                 Duration.ofMillis(1), Duration.ofMillis(5), Duration.ofSeconds(1), Duration.ofMillis(150));
@@ -217,7 +217,7 @@ class FanOutWorkerTest {
         JobSummary s = w.run(JOB);
 
         assertEquals(1, s.dead());
-        assertTrue(dlq.ids.get(0).contains("throttled too many times"));
+        assertTrue(dlq.ids.getFirst().contains("throttled too many times"));
     }
 
     @Test
@@ -302,7 +302,7 @@ class FanOutWorkerTest {
         InMemoryTaskStore store = new InMemoryTaskStore();
         List<Task> all = tasks("A", 1);
         // A previous worker claimed the task and then died (never marked it done):
-        store.tryClaim(all.get(0).key(), "dead-worker", clock.instant(), clock.instant().plusSeconds(60));
+        store.tryClaim(all.getFirst().key(), "dead-worker", clock.instant(), clock.instant().plusSeconds(60));
         FakeClient client = new FakeClient(0);
         FanOutWorker w = worker(all, store, client, new RecordingDlq(), id -> true,
                 new CapacityBudget(1, 0, clock), cfg(3), clock);

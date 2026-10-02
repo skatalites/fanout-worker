@@ -39,8 +39,8 @@ an engagement: load it and refresh its index row. That happens in three situatio
 | `RECONCILE` | periodic risk-biased sample | rows the index believes are `KNOWN` |
 | `PUBLISH_VERIFY` | after a publish, a sample of that product's engagements | rows the index believes are `KNOWN` for that product |
 
-A publish cannot enumerate engagements that were never loaded (they have no product or market yet), which is why those
-are handled by `BACKFILL`, not by the publish itself. Tasks are therefore keyed by **job**, not only by publish.
+A publishing cannot enumerate engagements that were never loaded (they have no product or market yet), which is why those
+are handled by `BACKFILL`, not by the publishing itself. Tasks are therefore keyed by **job**, not only by publish.
 
 ### Contracts
 

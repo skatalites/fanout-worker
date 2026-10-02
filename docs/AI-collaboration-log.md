@@ -40,7 +40,7 @@
 - A list of changes per version is a history, not the net effect the user needs.
 
 **The independent review corrected the AI's drafts**
-- **Design gap:** engagements never loaded have no product or market, so a publish cannot find them. The worker became a job-based "resolve this engagement" task, run for backfill, sampling and post-publish checks.
+- **Design gap:** engagements never loaded have no product or market, so a publishing cannot find them. The worker became a job-based "resolve this engagement" task, run for backfill, sampling and post-publish checks.
 - **Worker bugs:** a timeout freed capacity while the other system was still working; throttle answers used up the retry attempts; there was no shared capacity limit across jobs.
 - The target for wrong "up to date" answers (1 in 10,000) could not be measured in practice, so it became 1 in 1,000.
 - Summary checks cannot catch a reversed meaning; the cost model ignored markets and reviewers; one cost figure did not match its own arithmetic; the "seconds" promise contradicted the 60-second target.

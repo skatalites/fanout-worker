@@ -12,7 +12,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 /**
  * The downstream capacity contract, shared by EVERY background caller (publish verification, backfill, reconciler).
  * Pass the same instance to every worker so they compete for one budget instead of each assuming it owns it.
- *
+ * <p>
  * {@code reservedForUsers} is the slice of the downstream's capacity kept for real user sessions: background work
  * can never use it. A throttle response pauses everyone, because the downstream is shared.
  */
