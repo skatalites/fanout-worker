@@ -5,7 +5,6 @@ each task calls a **slow downstream (~1 min per engagement, owned by another tea
 runs those tasks safely: bounded, fair, idempotent, retrying and resumable.
 
 ## What the worker is for (and what it is not)
-## What the worker is for (and what it is not)
 
 In the design, "is this engagement pending?" is **derived** from the index and the version graph, so a template publish
 creates no per-engagement work for engagements the index already knows. The slow call is needed only to **resolve**
